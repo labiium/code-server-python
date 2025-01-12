@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.12
 
 USER root
 
@@ -14,7 +14,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-
 # Download and install the appropriate package for the system architecture
 RUN ARCH=$(dpkg --print-architecture) && \
     download_url=$(curl -s https://api.github.com/repos/coder/code-server/releases/latest | \
@@ -23,33 +22,36 @@ RUN ARCH=$(dpkg --print-architecture) && \
     dpkg -i code-server.deb && \
     rm code-server.deb
 
-
 RUN mkdir -p /etc/sudoers.d && \
     adduser --gecos '' --disabled-password coder && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 
+    
+# Copy the VS Code extension folder preserving its name
+COPY vsix_downloads/ vsix_downloads/
 
+# Copy the installation script
+COPY install_vsix.sh .
 
+# Run the installation script (it will look for the vsix_downloads folder in the current directory)
+RUN bash install_vsix.sh
+
+# Clean up the copied resources after installation
+RUN rm -rf vsix_downloads install_vsix.sh
+    
 USER coder
-
-# Install a VS Code extension:
-# Note: we use a different marketplace than VS Code. See https://github.com/cdr/code-server/blob/main/docs/FAQ.md#differences-compared-to-vs-code
-RUN code-server --install-extension ms-python.python
-RUN code-server --install-extension ms-toolsai.jupyter
-
-# Install a pip packages
+# Upgrade pip and install pip packages
 RUN python3 -m pip install --upgrade --no-cache pip
 RUN python3 -m pip install --no-cache numpy matplotlib ipykernel
 
-
 EXPOSE 8080
 
-
-# copy vscode settings
+# Copy VS Code settings (ensure the destination directory exists)
+RUN mkdir -p /home/coder/.local/share/code-server/User
 COPY settings.json /home/coder/.local/share/code-server/User/settings.json
 
+# Set up the project directory
 ARG START_DIR=/home/coder/project
-
 USER coder
 
 RUN sudo mkdir -p $START_DIR && \
