@@ -42,7 +42,7 @@ ecr_authenticate() {
 # === Function to Build Docker Image ===
 build_image() {
     echo "Building Docker image from current directory..."
-    docker build -t $REPOSITORY_NAME:$IMAGE_TAG .
+    docker buildx build --platform linux/arm/v7 -t $REPOSITORY_NAME:$IMAGE_TAG .
     if [ $? -ne 0 ]; then
         echo "Error: Docker image build failed."
         exit 1

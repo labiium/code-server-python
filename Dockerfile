@@ -30,12 +30,17 @@ RUN mkdir -p /etc/sudoers.d && \
 # Copy the VS Code extension folder preserving its name
 COPY vsix_downloads/ vsix_downloads/
 
+# Make sure installs for coder user
+USER coder
+
 # Copy the installation script
 COPY install_vsix.sh .
+
 
 # Run the installation script (it will look for the vsix_downloads folder in the current directory)
 RUN bash install_vsix.sh
 
+USER root
 # Clean up the copied resources after installation
 RUN rm -rf vsix_downloads install_vsix.sh
     
