@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:latest
 
 USER root
 
@@ -48,6 +48,7 @@ USER coder
 # Upgrade pip and install pip packages
 RUN python3 -m pip install --upgrade --no-cache pip
 RUN python3 -m pip install --no-cache numpy matplotlib ipykernel
+RUN python3 -m pip install --no-cache pandas scipy
 
 EXPOSE 8080
 
