@@ -26,7 +26,7 @@ RUN mkdir -p /etc/sudoers.d && \
     adduser --gecos '' --disabled-password coder && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 
-    
+
 # Copy the VS Code extension folder preserving its name
 COPY vsix_downloads/ vsix_downloads/
 
@@ -43,7 +43,7 @@ RUN bash install_vsix.sh
 USER root
 # Clean up the copied resources after installation
 RUN rm -rf vsix_downloads install_vsix.sh
-    
+
 USER coder
 # Upgrade pip and install pip packages
 RUN python3 -m pip install --upgrade --no-cache pip
@@ -57,11 +57,13 @@ COPY settings.json /home/coder/.local/share/code-server/User/settings.json
 
 # Set up the project directory
 ARG START_DIR=/home/coder/project
-USER coder
+USER root
 
 RUN sudo mkdir -p $START_DIR && \
     sudo chown -R coder:coder $START_DIR && \
     sudo chmod -R 755 $START_DIR
+
+USER coder
 
 WORKDIR $START_DIR
 

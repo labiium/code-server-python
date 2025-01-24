@@ -1,2 +1,2 @@
 bash extensions.sh extensions.txt
-bash ecr_tool.sh
+#bash ecr_tool.sh
